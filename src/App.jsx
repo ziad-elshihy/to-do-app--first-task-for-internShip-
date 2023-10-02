@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
+import Task from './components/Task';
+import Buttons from './components/Buttons';
 
-import './App.css'
 
+// Get localStorage
 const getLocalStorage = () => {
    let list = localStorage.getItem('list');
    if (list) {
@@ -12,14 +14,19 @@ const getLocalStorage = () => {
 };
 
 const App = () => {
+
+   // All State used
    const [value, setValue] = useState("")
    const [list, setList] = useState(getLocalStorage())
 
 
+   // Remove Function
    const removeTask = (id) => {
       setList(list.filter((item) => item.id !== id))
    }
 
+
+   // Complete Task Function
    const completeTask = (id) => {
       setList(
          list.map((item) => {
@@ -31,70 +38,55 @@ const App = () => {
       )
    }
 
+
+   // Main Click function <Button> => Add
    const handleClick = (e) => {
       e.preventDefault()
-      if (value.length <= 0) {
+      if (value.length === 0 && !value) {
          window.alert("Can not add empty task")
       } else {
          setList([
             ...list,
-            { title: value, id: new Date, completed: false }
+            { title: value, id: new Date(), completed: false }
          ])
       }
       setValue('')
    }
 
+   
+   // set localStorage
    useEffect(() => {
       localStorage.setItem('list', JSON.stringify(list));
    }, [list]);
 
    return (
       <>
-      <h1>T0 Do App</h1>
+         <h1>To Do App List</h1>
          <main className='container' >
-            <div>
-               <input type="text"
-                  className='input-field'
-                  value={value}
-                  onChange={(e) => setValue(e.target.value)}
-               />
-               <button
-                  className='btn'
-                  onClick={handleClick}
-               >
-                  Add
-               </button>
-            </div>
+            <Buttons
+               value={value}
+               setValue={setValue}
+               handleClick={handleClick}
+            />
             <ul className='d-f'>
                {
                   list.map((item) => {
                      const { title, id, completed } = item
                      return (
-                        <li key={id} className={`main-li ${completed && 'layer'}`}>
-                           <span className={`${completed && 'line'}`}>
-                              {title}
-                           </span>
-                           <span>
-                              <button
-                                 onClick={() => removeTask(id)}
-                              >
-                                 remove
-                              </button>
-                              <button
-                                 onClick={() => completeTask(id)}
-                              >
-                                 mark as complete
-                              </button>
-                           </span>
-                        </li>
+                        <Task
+                           key={id}
+                           title={title}
+                           id={id}
+                           completed={completed}
+                           completeTask={completeTask}
+                           removeTask={removeTask}
+                        />
                      )
                   })
                }
             </ul>
          </main >
       </>
-
-
    )
 }
 
